@@ -17,7 +17,7 @@ public class FrontServlet extends HttpServlet {
         try {
             super.init();
             // String packages = String.valueOf(getInitParameter("packages"));
-            String packages = "etu001935.model";
+            String packages = "etu002015.model";
             this.MappingUrls=new HashMap<>();
             String path = packages.replaceAll("[.]","\\\\");
             URL packageUrl=Thread.currentThread().getContextClassLoader().getResource(path);
@@ -43,6 +43,27 @@ public class FrontServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        
+    }
+
+    public void processRequest(HttpServletRequest request, HttpServletResponse response)
+        throws IOException, ServletException {
+        PrintWriter out = response.getWriter();
+        out.println(request.getHttpServletMapping().getMatchValue());
+        for (Map.Entry<String, Mapping> entry : MappingUrls.entrySet()) {
+            out.println(entry.getKey() + " " + entry.getValue().getClassName() + " " + entry.getValue().getMethod());
+        }
+    }
+
+    public void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws IOException, ServletException {
+        processRequest(request, response);
+    }
+
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
+        throws IOException, ServletException {
+        processRequest(request, response);
     }
 
 }

@@ -1,7 +1,7 @@
 set miditra=cd
-set mivoka=cd..
+set mivoka=cd ..
 set chemin1=.\Framework\
-set package=./etu002015
+set package=.\etu002015
 set name_jar=framework
 set chemin2="../Test framework/lib"
 
