@@ -14,9 +14,15 @@ public class Emp {
 
     public Emp(){}
 
+    // @Annotation(Url = "listeemp")
+    // public ModelView listeEmp(){
+    //     return new ModelView("listeEmp.jsp");
+    // }
+
     @Annotation(Url = "listeEmployer")
     public Emp listeEmp(){
         return new Emp();
     }
+
 
 }
