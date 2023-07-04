@@ -18,7 +18,9 @@ public class Emp {
 
     @Annotation(Url = "listeemp")
     public ModelView listeEmp(){
+        Object[] data = new Object[]{"olona"};
         ModelView modelview = new ModelView("listeEmp.jsp");
+        modelview.addItem("liste", data);
         return modelview;
     }
 
