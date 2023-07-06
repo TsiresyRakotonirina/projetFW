@@ -14,5 +14,9 @@
     <body>
         
         <div>TODO write content</div>
+        <form action="formulaire" method="post">
+            <input type="text" name="nom">
+            <input type="submit" value="envoyer">
+        </form>
     </body>
 </html>

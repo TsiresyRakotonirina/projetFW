@@ -5,7 +5,7 @@ import etu002015.framework.annotation.*;
 
 public class Emp {
     
-    String nom;
+    String nom = "zah";
 
     public String getNom() {
         return nom;
@@ -29,5 +29,10 @@ public class Emp {
     //     return new Emp();
     // }
 
-
+    @Annotation(Url = "formulaire")
+    public ModelView formulaire(){
+        ModelView modelview = new ModelView("formulaire.jsp");
+        modelview.addItem("emp", this);
+        return modelview;
+    }
 }
