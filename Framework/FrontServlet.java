@@ -36,6 +36,11 @@ import java.lang.reflect.*;
 public class FrontServlet extends HttpServlet {
 
     HashMap<String, Mapping> MappingUrls;
+    HashMap<String, Object> singletons;
+
+    public HashMap<String, Object> getSingletons() {
+        return this.singletons;
+    }
 
     public void init() {
         try {
@@ -161,7 +166,7 @@ public class FrontServlet extends HttpServlet {
                 for (int i = 0; i < parameters.length; i++ ){
                     values[i] = castElement(request.getParameter(parameters[i].getName()),parameters[i].getType()); 
                 }
-
+                //sprint 9
                 try {
                         for (Field field : fields) {
                             if (field.getType() == etu002015.framework.FileUpload.class) {
@@ -173,11 +178,17 @@ public class FrontServlet extends HttpServlet {
                                 mth.invoke(obj, objct);
                             }
                         }
-                    } catch (Exception e) {
-                        // e.printStackTrace(out);
-                        e.printStackTrace();
-                        // TODO: handle exception
-                    }
+                } catch (Exception e) {
+                    // e.printStackTrace(out);
+                    e.printStackTrace();
+                    // TODO: handle exception
+                }
+
+                // if singleton
+                if (classe.isAnnotationPresent(Scope.class) && ((Scope) classe.getAnnotation(Scope.class)).name().equalsIgnoreCase("singleton")) {
+                                    methodToInvoke.invoke(obj, (Object) null);
+                                    this.getSingletons().put(c.getName(), null);
+                }
 
 
                 //
@@ -262,7 +273,7 @@ public class FrontServlet extends HttpServlet {
         }
         return null;
     }
-
+    ///SPRINT 9
     private FileUpload fillFileUpload(FileUpload file, jakarta.servlet.http.Part filepart) {
         try (InputStream io = filepart.getInputStream()) {
             ByteArrayOutputStream buffers = new ByteArrayOutputStream();
@@ -279,7 +290,7 @@ public class FrontServlet extends HttpServlet {
             return null;
         }
     }
-
+    ///SPRINT 9
     public FileUpload fileTraitement(Collection<jakarta.servlet.http.Part> files, Field field) {
         FileUpload file = new FileUpload();
         String name = field.getName();
@@ -295,16 +306,6 @@ public class FrontServlet extends HttpServlet {
         file = this.fillFileUpload(file, filepart);
         return file;
     }   
-
-
-
-    // misplit anle url anaty navigation
-    private String[] getArgumentUrlNav(String urlArg){
-        String splitiavana = "?";
-        String[] split = urlArg.split(splitiavana);
-        return split;
-    }
-
 
     // maka anle mapping
     private Mapping getMappingUrls(String key) {
