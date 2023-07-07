@@ -1,0 +1,1 @@
+<% out.println(((etu002015.model.Emp)request.getAttribute("tsyaiko")).getFile().getName()); %>
