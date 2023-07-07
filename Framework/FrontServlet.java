@@ -1,5 +1,6 @@
 package etu002015.framework.servlet;
 
+import jakarta.servlet.annotation.*;
 import java.util.*;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -13,6 +14,7 @@ import jakarta.servlet.http.*;
 import etu002015.framework.Mapping;
 import etu002015.framework.ModelView;
 import etu002015.framework.annotation.*;
+import etu002015.framework.FileUpload;
 
 import jakarta.servlet.ServletException;
 
@@ -30,6 +32,7 @@ import java.time.format.DateTimeFormatter;
 import java.io.*;
 import java.lang.reflect.*;
 
+@MultipartConfig()
 public class FrontServlet extends HttpServlet {
 
     HashMap<String, Mapping> MappingUrls;
@@ -91,7 +94,7 @@ public class FrontServlet extends HttpServlet {
         return hash;
     }
 
-    // maka anle classe
+    // MAKA ANLE CLASSE AO ANATY MODEL
     private Class getClass(Mapping mapping) throws ClassNotFoundException {
         String className = "etu002015.model." + mapping.getClassName();
         return Class.forName(className);
@@ -130,6 +133,7 @@ public class FrontServlet extends HttpServlet {
             Mapping mapping = getMappingUrls(key);
             // String className = "etu002015.model." + mapping.getClassName();
             Class<?> classe = getClass(mapping);
+            Field[] fields = classe.getDeclaredFields();
             Object obj = classe.getConstructor().newInstance();
             Method[] methode = classe.getDeclaredMethods();
             Method methodToInvoke = null;
@@ -157,6 +161,24 @@ public class FrontServlet extends HttpServlet {
                 for (int i = 0; i < parameters.length; i++ ){
                     values[i] = castElement(request.getParameter(parameters[i].getName()),parameters[i].getType()); 
                 }
+
+                try {
+                        for (Field field : fields) {
+                            if (field.getType() == etu002015.framework.FileUpload.class) {
+                                String z = field.getName();
+                                String first = z.substring(0, 1).toUpperCase();
+                                String last = z.substring(1);
+                                Method mth = classe.getDeclaredMethod("set" + first + last, field.getType());
+                                Object objct = this.fileTraitement(request.getParts(), field);
+                                mth.invoke(obj, objct);
+                            }
+                        }
+                    } catch (Exception e) {
+                        // e.printStackTrace(out);
+                        e.printStackTrace();
+                        // TODO: handle exception
+                    }
+
 
                 //
                 // if (paramCount == 0) {
@@ -227,6 +249,55 @@ public class FrontServlet extends HttpServlet {
             mset.invoke(object, objc);
         }
     }
+
+
+
+    ///SPRINT 9
+    private String getFileName(jakarta.servlet.http.Part part) {
+        String contentDisposition = part.getHeader("content-disposition");
+        String[] parts = contentDisposition.split(";");
+        for (String partStr : parts) {
+            if (partStr.trim().startsWith("filename"))
+                return partStr.substring(partStr.indexOf('=') + 1).trim().replace("\"", "");
+        }
+        return null;
+    }
+
+    private FileUpload fillFileUpload(FileUpload file, jakarta.servlet.http.Part filepart) {
+        try (InputStream io = filepart.getInputStream()) {
+            ByteArrayOutputStream buffers = new ByteArrayOutputStream();
+            byte[] buffer = new byte[(int) filepart.getSize()];
+            int read;
+            while ((read = io.read(buffer, 0, buffer.length)) != -1) {
+                buffers.write(buffer, 0, read);
+            }
+            file.setName(this.getFileName(filepart));
+            file.setBytes(buffers.toByteArray());
+            return file;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public FileUpload fileTraitement(Collection<jakarta.servlet.http.Part> files, Field field) {
+        FileUpload file = new FileUpload();
+        String name = field.getName();
+        boolean exists = false;
+        String filename = null;
+        jakarta.servlet.http.Part filepart = null;
+        for (jakarta.servlet.http.Part part : files) {
+            if (part.getName().equals(name)) {
+                filepart = part;
+                break;
+            }
+        }
+        file = this.fillFileUpload(file, filepart);
+        return file;
+    }   
+
+
+
     // misplit anle url anaty navigation
     private String[] getArgumentUrlNav(String urlArg){
         String splitiavana = "?";
@@ -255,15 +326,7 @@ public class FrontServlet extends HttpServlet {
         for (Map.Entry<String, Mapping> entry : MappingUrls.entrySet()) {
             out.println(entry.getKey() + " " + entry.getValue().getClassName() + " " + entry.getValue().getMethod());
         }
-        // //maka anle url mbola misy argument
-        // String urlAvecArg = getUrlArray(request);
-        // //midiviser anle url
-        // String[] urldiviser = getArgumentUrlNav(urlAvecArg);
-        // //maka anle argument fotsiny amzay
-        // for (int i = 1; i < urldiviser.length; i ++){
-        //     String [] argument= urldiviser[i];
-        // }
-       
+
         //
         String url = getUrlArray(request);
         out.print(this.MappingUrls);

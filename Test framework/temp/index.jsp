@@ -13,9 +13,17 @@
     <body>
         
         <div>Formulaire</div>
-        <form action="formulaire" method="post">
-            <input type="text" name="nom">
-            <input type="submit" value="envoyer">
-        </form>
+        <p>
+            <form action="formulaire" method="post">
+                <input type="text" name="nom">
+                <input type="submit" value="envoyer">
+            </form>
+        </p>
+        <p>
+            <form action="fileUpload" enctype="multipart/form-data" method="post">
+                <input type="file" name="file">
+                <input type="submit" value="envoyer">
+            </form>
+        </p>
     </body>
 </html>
