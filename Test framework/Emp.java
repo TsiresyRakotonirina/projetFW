@@ -4,6 +4,7 @@ import etu002015.framework.FileUpload;
 import etu002015.framework.ModelView;
 import etu002015.framework.annotation.*;
 
+@Scope(name="singleton")
 public class Emp {
     
     String nom = "zah";
