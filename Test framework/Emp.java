@@ -24,15 +24,23 @@ public class Emp {
         return modelview;
     }
 
-    // @Annotation(Url = "listeEmployer")
-    // public Emp listeEmp(){
-    //     return new Emp();
-    // }
-
+    //sprint7
     @Annotation(Url = "formulaire")
     public ModelView formulaire(){
         ModelView modelview = new ModelView("formulaire.jsp");
         modelview.addItem("emp", this);
         return modelview;
     }
+
+    //sprint8
+    @Annotation(Url = "fonctionArgumenter")
+    public ModelView argument(Integer arg){
+        ModelView modelview = new ModelView("data.jsp");
+        modelview.addItem("argument", arg);
+        return modelview;
+    }
+
+
+
+
 }

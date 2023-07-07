@@ -42,12 +42,6 @@ public class FrontServlet extends HttpServlet {
         }
     }
 
-    // maka anle mapping
-    private Mapping getMappingUrls(String key) {
-        Mapping mapping = MappingUrls.get(key);
-        return mapping;
-    }
-
     // fonction pour obtenir toutes les classes d'un package donné
     public static List<Class<?>> obtenirClasses(String packageName) throws ClassNotFoundException, IOException, URISyntaxException {
         List<Class<?>> classes = new ArrayList<>();
@@ -117,8 +111,7 @@ public class FrontServlet extends HttpServlet {
                     }
                 }
                 RequestDispatcher dispatch = request.getRequestDispatcher(modelview.getUrl());
-               // request.setAttribute(, modelview.getDate());
-                 dispatch.forward(request, response);
+                dispatch.forward(request, response);
             }
         } catch (Exception e) {
             e.printStackTrace(out);
@@ -132,7 +125,6 @@ public class FrontServlet extends HttpServlet {
             throws ServletException, IOException {
         PrintWriter out = response.getWriter();
         try {
-            out.println("135");
             Enumeration<String> parameterNames = request.getParameterNames();
             // maka anle mapping amn alalany key(cle anle hashmap)
             Mapping mapping = getMappingUrls(key);
@@ -149,22 +141,31 @@ public class FrontServlet extends HttpServlet {
                     break;
                 }
             }
+            //mamadika anke valeur anaty class Emp setNom #(ohatra)
             setvaluefromform(obj, request);
             // jerena ny type de retour anle Mapping(key)
             if (methodToInvoke.getReturnType() == ModelView.class) {
                 Object resultat;
                 Class<?>[] parameterTypes = methodToInvoke.getParameterTypes();
                 // Parameter[] parameters = methodToInvoke.getParameters();
-                Object[] paramValues = new Object[parameterTypes.length];
+                // Object[] paramValues = new Object[parameterTypes.length];
                 int paramCount = methodToInvoke.getParameterCount();
 
-                if (paramCount == 0) {
-                    obj = methodToInvoke.invoke(obj, (Object[]) null);
-                } else {
-                    obj = methodToInvoke.invoke(obj, paramValues);
+                //sprint8 maka argument avy amn request ra misy argumet le fonction
+                Parameter[] parameters = methodToInvoke.getParameters();
+                Object[] values = new Object[parameters.length];
+                for (int i = 0; i < parameters.length; i++ ){
+                    values[i] = castElement(request.getParameter(parameters[i].getName()),parameters[i].getType()); 
                 }
 
-                    loadView((ModelView) obj, request, response);
+                //
+                // if (paramCount == 0) {
+                obj = methodToInvoke.invoke(obj, (Object[]) values);
+                // } else {
+                    // obj = methodToInvoke.invoke(obj, paramValues);
+                // }
+
+                loadView((ModelView) obj, request, response);
 
             }
 
@@ -173,10 +174,6 @@ public class FrontServlet extends HttpServlet {
         }
     }
 
-    // maka anle url sur navigation
-    private String getUrlArray(HttpServletRequest request) {
-        return request.getRequestURI().substring(request.getContextPath().length() + 1);
-    }
     // mamadika input ho majuscule ny lettre voloha
     private String capitalizeFirstLetter(String input) {
         char firstChar = Character.toUpperCase(input.charAt(0));
@@ -213,11 +210,11 @@ public class FrontServlet extends HttpServlet {
                 return null;
             }
         }
-
+        
         return null;
     }
-
-    //maka valeur anaty formulaire
+    
+    //maka valeur anaty formulaire 7
     public void setvaluefromform(Object object, HttpServletRequest request) throws Exception{
         //maka ny atribut
         Field[] fields = object.getClass().getDeclaredFields();
@@ -230,24 +227,50 @@ public class FrontServlet extends HttpServlet {
             mset.invoke(object, objc);
         }
     }
+    // misplit anle url anaty navigation
+    private String[] getArgumentUrlNav(String urlArg){
+        String splitiavana = "?";
+        String[] split = urlArg.split(splitiavana);
+        return split;
+    }
+
+
+    // maka anle mapping
+    private Mapping getMappingUrls(String key) {
+        Mapping mapping = MappingUrls.get(key);
+        return mapping;
+    }
+    
+    // maka anle url sur navigation
+    private String getUrlArray(HttpServletRequest request) {
+        return request.getRequestURI().substring(request.getContextPath().length() + 1);
+    }
 
     public void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
+    throws IOException, ServletException {
         PrintWriter out = response.getWriter();
         // out.println(request.getHttpServletMapping().getMatchValue());
+
         // maka ny anatinle annotation @Url("key") sy mapping rehetra anaty MappingUrls
         for (Map.Entry<String, Mapping> entry : MappingUrls.entrySet()) {
             out.println(entry.getKey() + " " + entry.getValue().getClassName() + " " + entry.getValue().getMethod());
         }
-        
-        //setvaluefromform(out, null, null);
+        // //maka anle url mbola misy argument
+        // String urlAvecArg = getUrlArray(request);
+        // //midiviser anle url
+        // String[] urldiviser = getArgumentUrlNav(urlAvecArg);
+        // //maka anle argument fotsiny amzay
+        // for (int i = 1; i < urldiviser.length; i ++){
+        //     String [] argument= urldiviser[i];
+        // }
+       
         //
-            String url = getUrlArray(request);
-            out.print(this.MappingUrls);
-            Mapping mapping = getMappingUrls(url);
-            
-                out.println("nety aloha");
-                getUrlModelView(url, request, response);
+        String url = getUrlArray(request);
+        out.print(this.MappingUrls);
+        Mapping mapping = getMappingUrls(url);
+        
+        out.println("nety aloha");
+        getUrlModelView(url, request, response);
         
     }
 
